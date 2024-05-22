@@ -11,9 +11,12 @@ import Heading from "../Heading";
 import Input from "../inputs/Input";
 import toast from "react-hot-toast";
 import Button from "../Button";
+import { signIn } from "next-auth/react";
+import useLoginModal from "@/app/hooks/useLoginModal";
 
 const RegisterModal = () => {
   const registerModal = useRegisterModal();
+  const loginModal = useLoginModal();
   const [isLoading, setIsLoading] = useState(false);
 
   const {
@@ -30,18 +33,44 @@ const RegisterModal = () => {
 
   const onSubmit: SubmitHandler<FieldValues> = (data) => {
     setIsLoading(true);
+    // try {
+    //   const response = await axios.post("/api/register", data);
+    //   // console.log(response.data);
+    //   registerModal.onClose();
+    // } catch (error: NextResponse | any) {
+    //   // console.log({statusCode: error.response.status});
+    //   console.log(error.response);
+    //   if (error.response && error.response.status === 409) {
+    //     toast.error("Email already exist");
+    //     return;
+    //   } else {
+    //     toast.error("Something went wrong");
+    //   }
+    // } finally {
+    //   setIsLoading(false);
+    // }
     axios
       .post("/api/register", data)
       .then(() => {
         registerModal.onClose();
       })
       .catch((error) => {
-        toast.error("Something went wrong");
+        if (error?.response?.status === 409) {
+          toast.error("Email already exist");
+          return;
+        } else {
+          toast.error("Something went wrong");
+        }
       })
       .finally(() => {
         setIsLoading(false);
       });
   };
+
+  const toggle = useCallback(() => {
+    registerModal.onClose();
+    loginModal.onOpen();
+  }, [loginModal, registerModal]);
 
   const bodyContent = (
     <div className="flex flex-col gap-4">
@@ -83,19 +112,19 @@ const RegisterModal = () => {
         outline
         label="Continue with Google"
         icon={FcGoogle}
-        onClick={() => {}}
+        onClick={() => {signIn("google")}}
       />
       <Button
         outline
         label="Continue with Github"
         icon={AiFillGithub}
-        onClick={() => {}}
+        onClick={() => {signIn("github")}}
       />
       <div className="text-neutral-500 text-center mt-4 font-light">
         <div>
           Already have an account?
           <span
-            onClick={registerModal.onClose}
+            onClick={toggle}
             className="text-neutral-800 cursor-pointer hover:underline font-semibold"
           >
             {" "}

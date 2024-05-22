@@ -12,6 +12,7 @@ interface InputProps {
   required?: boolean;
   register: UseFormRegister<FieldValues>;
   errors: FieldErrors;
+  autoComplete?: string;
 }
 
 const Input: React.FC<InputProps> = ({
@@ -23,6 +24,7 @@ const Input: React.FC<InputProps> = ({
   required,
   register,
   errors,
+  autoComplete='off'
 }) => {
   return (
     <div className="w-full relative">
@@ -36,6 +38,7 @@ const Input: React.FC<InputProps> = ({
         {...register(id, { required })}
         placeholder=" "
         type={type}
+        autoComplete={autoComplete}
         className={`
           peer
           w-full
